@@ -626,7 +626,6 @@ class InlineModelConverter(InlineModelConverterBase):
 
         # Contribute field
         if forward_prop.uselist is False:
-            pass
             setattr(form_class,
                     forward_prop.key,
                     self.inline_field_type(child_form,
