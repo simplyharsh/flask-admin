@@ -13,7 +13,8 @@ from flask_admin._compat import iteritems
 
 from .validators import Unique
 from .fields import (QuerySelectField, QuerySelectMultipleField,
-                     InlineModelFormList, InlineHstoreList, HstoreForm)
+                     InlineModelFormList, InlineHstoreList, HstoreForm,
+                     _InlineModelFormField)
 from flask_admin.model.fields import InlineFormField
 from .tools import (has_multiple_pks, filter_foreign_columns,
                     get_field_with_path)
@@ -458,6 +459,7 @@ class InlineModelConverter(InlineModelConverterBase):
     """
 
     inline_field_list_type = InlineModelFormList
+    inline_field_type = _InlineModelFormField
     """
         Used field list type.
 
@@ -623,13 +625,23 @@ class InlineModelConverter(InlineModelConverterBase):
             kwargs.update(**field_args)
 
         # Contribute field
-        setattr(form_class,
-                forward_prop.key,
-                self.inline_field_list_type(child_form,
-                                            self.session,
-                                            info.model,
-                                            reverse_prop.key,
-                                            info,
-                                            **kwargs))
-
+        if forward_prop.uselist is False:
+            pass
+            setattr(form_class,
+                    forward_prop.key,
+                    self.inline_field_type(child_form,
+                                           self.session,
+                                           info.model,
+                                           reverse_prop.key,
+                                           info,
+                                           **kwargs))
+        else:
+            setattr(form_class,
+                    forward_prop.key,
+                    self.inline_field_list_type(child_form,
+                                                self.session,
+                                                info.model,
+                                                reverse_prop.key,
+                                                info,
+                                                **kwargs))
         return form_class

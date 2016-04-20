@@ -222,6 +222,45 @@ class InlineHstoreList(InlineFieldList):
         setattr(obj, name, output)
 
 
+class _InlineModelFormField(InlineModelFormField):
+    def __init__(self, form, session, model, prop, inline_view, **kwargs):
+        """
+            Default constructor.
+
+            :param form:
+                Form for the related model
+            :param session:
+                SQLAlchemy session
+            :param model:
+                Related model
+            :param prop:
+                Related property name
+            :param inline_view:
+                Inline view
+        """
+        self.form = form
+        self.session = session
+        self.model = model
+        self.prop = prop
+        self.inline_view = inline_view
+
+        self._pk = get_primary_key(model)
+        # Generate inline form field
+        form_opts = FormOpts(widget_args=getattr(inline_view, 'form_widget_args', None),
+                             form_rules=inline_view._form_rules)
+
+        super(_InlineModelFormField, self).__init__(form, self._pk, form_opts=form_opts, **kwargs)
+
+    def populate_obj(self, obj, name):
+        values = getattr(obj, name, None)
+
+        if values is None:
+            return
+
+        return super(_InlineModelFormField, self).populate_obj(values, name)
+
+
+
 class InlineModelFormList(InlineFieldList):
     """
         Customized inline model form list field.
