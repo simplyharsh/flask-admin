@@ -253,11 +253,12 @@ class _InlineModelFormField(InlineModelFormField):
 
     def populate_obj(self, obj, name):
         values = getattr(obj, name, None)
-
         if values is None:
-            return
-
-        return super(_InlineModelFormField, self).populate_obj(values, name)
+            model = self.model()
+            super(_InlineModelFormField, self).populate_obj(model, name)
+            setattr(obj, name, model)
+        else:
+            super(_InlineModelFormField, self).populate_obj(values, name)
 
 
 
